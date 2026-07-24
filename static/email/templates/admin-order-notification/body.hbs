@@ -1,0 +1,96 @@
+<mjml>
+  <mj-body background-color="#f5f5f5">
+
+    <!-- Header -->
+    <mj-section background-color="#ffffff" padding="20px">
+      <mj-column>
+
+        <mj-text font-size="20px" font-weight="bold">
+          New Order Received 🎉
+        </mj-text>
+
+        <mj-text>
+          <strong>Order Code:</strong> {{ order.code }}<br/>
+          <strong>Customer Email:</strong> {{ order.customer.emailAddress }}<br/>
+          <strong>Total:</strong> {{ formatMoney order.totalWithTax order.currencyCode 'en' }}
+        </mj-text>
+
+      </mj-column>
+    </mj-section>
+
+    <!-- Order Items Table -->
+    <mj-section background-color="#ffffff" padding="20px">
+      <mj-column>
+
+        <mj-text font-size="16px" font-weight="bold">
+          🛒 Order Items
+        </mj-text>
+
+        <mj-table>
+          <tr style="border-bottom:1px solid #ccc;text-align:left;">
+            <th style="padding:5px;">Item</th>
+            <th style="padding:5px;">Qty</th>
+            <th style="padding:5px;">Price</th>
+          </tr>
+
+          {{#each order.lines}}
+            <tr>
+              <td style="padding:5px;">{{ this.productVariant.name }}</td>
+              <td style="padding:5px;">{{ this.quantity }}</td>
+              <td style="padding:5px;">{{ formatMoney this.linePriceWithTax ../order.currencyCode 'en' }}</td>
+            </tr>
+          {{/each}}
+
+          {{#each order.discounts}}
+            <tr>
+              <td colspan="2" style="padding:5px;">{{ description }}</td>
+              <td style="padding:5px;">-{{ formatMoney amount ../order.currencyCode 'en' }}</td>
+            </tr>
+          {{/each}}
+        </mj-table>
+
+      </mj-column>
+    </mj-section>
+
+    <!-- Delivery Address -->
+    <mj-section background-color="#ffffff" padding="20px">
+      <mj-column>
+
+        <mj-text font-size="16px" font-weight="bold">
+          📍 Delivery Address
+        </mj-text>
+
+        <mj-text>
+          {{ order.shippingAddress.fullName }}<br/>
+          {{ order.shippingAddress.streetLine1 }}<br/>
+
+          {{#if order.shippingAddress.streetLine2}}
+            {{ order.shippingAddress.streetLine2 }}<br/>
+          {{/if}}
+
+          {{ order.shippingAddress.city }}<br/>
+          {{ order.shippingAddress.province }}<br/>
+          {{ order.shippingAddress.postalCode }}<br/>
+          {{ order.shippingAddress.country }}
+        </mj-text>
+
+      </mj-column>
+    </mj-section>
+
+    <!-- Contact -->
+    <mj-section background-color="#ffffff" padding="20px">
+      <mj-column>
+
+        <mj-text font-size="16px" font-weight="bold">
+          📞 Contact
+        </mj-text>
+
+        <mj-text>
+          Phone: {{ order.shippingAddress.phoneNumber }}
+        </mj-text>
+
+      </mj-column>
+    </mj-section>
+
+  </mj-body>
+</mjml>
