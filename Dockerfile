@@ -13,6 +13,7 @@ RUN npm ci
 
 # Copy entire project
 COPY . .
+COPY .env.prod .env
 
 # Build server
 RUN npm run build

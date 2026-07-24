@@ -3,7 +3,7 @@ import { OrderPlacedEvent } from "@vendure/core";
 
 export const adminOrderNotification = new EmailEventListener('admin-order-notification')
     .on(OrderPlacedEvent)
-    .setRecipient(() => 'omaraisaac5@gmail.com')
+    .setRecipient(() => 'limogodwill@gmail.com')
     .setFrom('admin@pulsetechuganda.com')
     .setSubject(event => `New Order #${event.order.code}`)
     .setTemplateVars(event => ({
