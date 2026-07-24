@@ -39,7 +39,7 @@ services:
       start_period: 40s
   quickbuy_worker:
     build:
-      context: ../..
+      context: .
       dockerfile: Dockerfile
     container_name: quickbuy-worker
     restart: unless-stopped
