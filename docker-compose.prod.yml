@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  postgres:
+      image: postgres:16-alpine
+      container_name: quickbuy_postgres
+      restart: unless-stopped
+      environment:
+        POSTGRES_USER: ${DB_USERNAME}
+        POSTGRES_PASSWORD: ${DB_PASSWORD}
+        POSTGRES_DB: ${DB_NAME}
+      volumes:
+        - ./data/postgres:/var/lib/postgresql/data
+      networks:
+        - quickbuy-network
+  quickbuy_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quickbuy-server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.prod
+    volumes:
+      - ./data:/data
+      - ./static/assets:/app/static/assets
+      - ./static/email:/app/static/email
+
+    networks:
+      - quickbuy-network
+      
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+  quickbuy_worker:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    container_name: quickbuy-worker
+    restart: unless-stopped
+    command: node dist/index-worker.js
+    env_file:
+      - .env.prod
+    volumes:
+      - ./data:/data
+      - ./static/assets:/app/static/assets
+      - ./static/email:/app/static/email
+    depends_on:
+      - quickbuy_server
+    networks:
+      - quickbuy-network
+ 
+networks:
+  quickbuy-network:
+    # driver: bridge
+    external: true
