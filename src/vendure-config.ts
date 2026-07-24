@@ -11,6 +11,8 @@ import { DashboardPlugin } from '@vendure/dashboard/plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import 'dotenv/config';
 import path from 'path';
+import { ResendEmailSender } from './config/resend-email-sender';
+import { adminOrderNotification } from './config/admin-order-notification-handler';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 const serverPort = +process.env.PORT || 3000;
@@ -31,7 +33,7 @@ export const config: VendureConfig = {
     },
     authOptions: {
         tokenMethod: ['bearer', 'cookie'],
-        requireVerification: false,
+        requireVerification: true,
         superadminCredentials: {
             identifier: process.env.SUPERADMIN_USERNAME,
             password: process.env.SUPERADMIN_PASSWORD,
@@ -68,25 +70,27 @@ export const config: VendureConfig = {
             // For local dev, the correct value for assetUrlPrefix should
             // be guessed correctly, but for production it will usually need
             // to be set manually to match your production url.
-            assetUrlPrefix: IS_DEV ? undefined : 'https://www.my-shop.com/assets/',
+            assetUrlPrefix: IS_DEV ? undefined : 'https://api.quickbuyug.com/assets/',
         }),
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
         EmailPlugin.init({
-            devMode: true,
-            outputPath: path.join(__dirname, '../static/email/test-emails'),
-            route: 'mailbox',
-            handlers: defaultEmailHandlers,
+            // devMode: true,
+            // outputPath: path.join(__dirname, '../static/email/test-emails'),
+            // route: 'mailbox',
             templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
             globalTemplateVars: {
                 // The following variables will change depending on your storefront implementation.
                 // Here we are assuming a storefront running at http://localhost:8080.
-                fromAddress: '"example" <noreply@example.com>',
-                verifyEmailAddressUrl: 'http://localhost:8080/verify',
-                passwordResetUrl: 'http://localhost:8080/password-reset',
-                changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
+                fromAddress: 'support@quickbuyug.com',
+                verifyEmailAddressUrl: 'https://quickbuyug.com/verify',
+                passwordResetUrl: 'https://quickbuyug.com/password-reset',
+                changeEmailAddressUrl: 'https://quickbuyug.com/verify-email-address-change'
             },
+            transport: {type:'none'},
+            emailSender: new ResendEmailSender(process.env.RESEND_API_KEY || ''),
+            handlers:[...defaultEmailHandlers,adminOrderNotification]
         }),
         DashboardPlugin.init({
             route: 'dashboard',
